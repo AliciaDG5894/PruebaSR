@@ -16,7 +16,7 @@
         </div>
     </div>
 
-    <!-- Solo usuarios (si quieres que el admin no use esta vista) -->
+    <!-- Solo usuarios -->
     <section ng-if="SessionService.getTipo() != 1">
 
         <!-- Buscador -->
@@ -26,12 +26,16 @@
                    placeholder="Buscar por nombre, ingrediente, categoría..."
                    ng-model="textoBusqueda"
                    ng-keypress="onKeyPress($event)">
-            <button type="button" class="btn btn-primary" ng-click="buscar()">Buscar</button>
+            <button type="button"
+                    class="btn btn-primary"
+                    ng-click="buscar()">
+                Buscar
+            </button>
         </div>
 
         <!-- Resultados -->
         {% raw %}
-        <div class="row">
+        <div class="row mt-3">
             <div class="col-12 col-sm-6 col-md-4 col-lg-3 mb-3"
                  ng-repeat="r in resultados">
 
@@ -41,8 +45,6 @@
                              alt="{{ r.Nombre }}"
                              class="img-fluid rounded"
                              style="width: 100%; height: 220px; object-fit: cover;">
-
-                        <!-- Podrías reusar el corazón aquí también -->
                     </div>
 
                     <div class="mt-2 px-2 pb-2">
@@ -60,12 +62,6 @@
         </div>
         {% endraw %}
 
-
-
     </section>
 
 </div>
-
-
-
-
