@@ -26,7 +26,7 @@
                    placeholder="Buscar por nombre, ingrediente, categoría..."
                    ng-model="textoBusqueda"
                    ng-keypress="onKeyPress($event)">
-            <button class="btn btn-primary" ng-click="buscar()">Buscar</button>
+            <button type="button" class="btn btn-primary" ng-click="buscar()">Buscar</button>
         </div>
 
         <h5>{{ "{{ categoriaDesayunos.titulo }}" }}</h5>
@@ -117,4 +117,5 @@
     </section>
 
 </div>
+
 
