@@ -5,23 +5,12 @@ def obtener_favoritos(con, id_usuario=None):
     cursor = con.cursor(dictionary=True)
 
     sql = """
-    SELECT f.IdFavorito,
-           f.Id_Usuario,
-           r.IdReceta,
-           r.Nombre,
-           r.Descripcion,
-           r.Categorias,
-           f.Comentario,
-           f.Calificacion,
-           f.Fecha,
-           r.Imagen
+    SELECT f.IdFavorito, f.Id_Usuario, r.IdReceta, r.Nombre, r.Descripcion, r.Categorias, f.Comentario, f.Calificacion, f.Fecha, r.Imagen
     FROM Favoritos f
     JOIN Recetas r ON f.IdReceta = r.IdReceta
     """
     params = ()
 
-    # Si se pasa un id_usuario, filtramos por él.
-    # Si es None, traemos TODOS los favoritos.
     if id_usuario is not None:
         sql += " WHERE f.Id_Usuario = %s"
         params = (id_usuario,)
@@ -68,9 +57,7 @@ def obtener_favoritos(con, id_usuario=None):
 
 
 def guardar_favorito(con, id_usuario, id_receta, comentario=None, calificacion=None):
-
     cursor = con.cursor(dictionary=True)
-
     try:
         sql_buscar = """
         SELECT IdFavorito
@@ -95,7 +82,6 @@ def guardar_favorito(con, id_usuario, id_receta, comentario=None, calificacion=N
             val_update = (comentario, calificacion, ahora, row["IdFavorito"])
             cursor.execute(sql_update, val_update)
         else:
-            # No existe → INSERT
             sql_insert = """
             INSERT INTO Favoritos (Id_Usuario, IdReceta, Comentario, Calificacion, Fecha)
             VALUES (%s, %s, %s, %s, %s)
@@ -123,5 +109,6 @@ def eliminar_favorito(con, id_favorito, id_usuario):
         con.commit()
     finally:
         cursor.close()
+
 
 
