@@ -1,0 +1,238 @@
+<div ng-controller="recetasCtrl" class="container my-3">
+
+    <!-- HEADER COMÚN -->
+    <div class="card mb-3">
+        <div class="card-body d-flex justify-content-between align-items-center">
+            <div class="d-flex align-items-center gap-2">
+                <span class="fs-4 fw-bold">Sabor en Red</span>
+            </div>
+            <div class="text-end">
+                <div>Bienvenido, {{ ' {{ SessionService.getUsr() }} ' }}</div>
+                <small class="text-muted">
+                    Tipo:
+                    {{ ' {{ SessionService.getTipo() == 1 ? "Administrador" : "Usuario" }} ' }}
+                </small>
+            </div>
+        </div>
+    </div>
+
+    <!-- =======================================================
+         VISTA ADMIN (Tipo_Usuario = 1) - puede crear / eliminar
+         ======================================================= -->
+    <section ng-if="SessionService.getTipo() == 1">
+
+        <!-- FORMULARIO -->
+        <form id="frmRecetas" method="post" ng-submit="crearReceta()"  enctype="multipart/form-data">
+            <input type="hidden" id="idReceta" name="idReceta">
+        
+            <div class="mb-1">
+                <label>Nombre</label>
+                <input type="text" class="form-control" ng-model="nombre" id="txtNombre" name="txtNombre" required>
+            </div>
+            <div class="mb-1">
+                <label>Descripción</label>
+                <input type="text" class="form-control" ng-model="descripcion" id="txtDescripcion" name="txtDescripcion" required>
+            </div>
+            <div class="mb-1">
+                <label>Ingredientes</label>
+                <input type="text" class="form-control" ng-model="ingredientes" id="txtIngredientes" name="txtIngredientes" required>
+            </div>
+            <div class="mb-1">
+                <label>Utensilios</label>
+                <input type="text" class="form-control" ng-model="utensilios" id="txtUtensilios" name="txtUtensilios" required>
+            </div>
+            <div class="mb-1">
+                <label>Instrucciones</label>
+                <input type="text" class="form-control" ng-model="instrucciones" id="txtInstrucciones" name="txtInstrucciones" required>
+            </div>
+            <div class="mb-1">
+                <label>Nutrientes</label>
+                <input type="text" class="form-control" ng-model="nutrientes" id="txtNutrientes" name="txtNutrientes" required>
+            </div>
+            <div class="mb-1">
+                <label for="txtCategoria" class="form-label">Categoría</label>
+                <select class="form-control" ng-model="categorias" name="txtCategoria" id="txtCategoria" required>
+                    <option value="" disabled selected hidden>Selecciona una categoría</option>
+                    <option value="Desayunos">Desayunos</option>
+                    <option value="Comidas">Comidas</option>
+                    <option value="Cenas">Cenas</option>
+                    <option value="Postres">Postres</option>
+                    <option value="Rapida">Rápida</option>
+                    <option value="Saludable">Saludable</option>
+                </select>
+            </div>
+            <div class="mb-1">
+                <label for="fileImagen" class="form-label">Imagen</label>
+                <input type="file" class="form-control" id="fileImagen" name="fileImagen" accept="image/*">
+            </div>
+    
+            <div class="mb-1 text-end">
+                <button class="btn btn-primary">Guardar</button>
+            </div>
+        </form>
+
+        <!-- VISTA PREVIA (BUILDER) -->
+        {% raw %}
+        <div class="card mt-4" ng-if="nuevaReceta">
+          <div class="card-header bg-success text-white">
+            Vista previa de tu receta
+          </div>
+          <div class="card-body">
+            <h3 class="card-title mb-1">{{ nuevaReceta.Nombre }}</h3>
+            <p class="text-muted mb-3">{{ nuevaReceta.Descripcion }}</p>
+
+            <div class="text-center mb-3" ng-if="nuevaReceta.Imagen">
+              <img ng-src="{{ nuevaReceta.Imagen }}"
+                   alt="{{ nuevaReceta.Nombre }}"
+                   class="img-fluid rounded"
+                   style="max-height: 200px; object-fit: cover;">
+            </div>
+        
+            <div class="row">
+              <div class="col-md-6">
+                <h6 class="fw-bold">Ingredientes</h6>
+                <p class="mb-2">{{ nuevaReceta.Ingredientes }}</p>
+              </div>
+              <div class="col-md-6">
+                <h6 class="fw-bold">Utensilios</h6>
+                <p class="mb-2">{{ nuevaReceta.Utensilios }}</p>
+              </div>
+            </div>
+        
+            <h6 class="fw-bold mt-3">Instrucciones</h6>
+            <p>{{ nuevaReceta.Instrucciones }}</p>
+        
+            <div class="row mt-3">
+              <div class="col-md-6">
+                <span class="badge bg-info text-dark me-2">
+                  Nutrientes: {{ nuevaReceta.Nutrientes }}
+                </span>
+              </div>
+              <div class="col-md-6 text-md-end mt-2 mt-md-0">
+                <span class="badge bg-secondary">
+                  Categoría: {{ nuevaReceta.Categorias }}
+                </span>
+              </div>
+            </div>
+          </div>
+        </div>
+        {% endraw %}
+        
+        <!-- BUSCADOR + TABLA ADMIN -->
+        <div class="mb-3 input-group">
+            <input type="text" class="form-control" id="txtBuscarReceta"
+                   placeholder="Buscar receta" ng-model="busqueda">
+            <button class="btn btn-secondary" id="btnBuscarReceta" type="button">Buscar</button>
+        </div>
+        
+        <div class="table-responsive">
+            <table class="table table-sm">
+                <thead class="table-active">
+                    <tr>
+                        <th>Id</th>
+                        <th>Nombre</th>
+                        <th>Descripción</th>
+                        <th>Ingredientes</th>
+                        <th>Utensilios</th>
+                        <th>Instrucciones</th>
+                        <th>Nutrientes</th>
+                        <th>Categoría</th>
+                        <th>Imagen</th>
+                        <th>Acciones</th>
+                    </tr>
+                </thead>
+                <tbody id="recetasTbody"></tbody>
+            </table>
+        </div>
+
+    </section>
+
+    <!-- =======================================================
+         VISTA USUARIO NORMAL (Tipo_Usuario != 1) - solo lectura
+         ======================================================= -->
+    <section ng-if="SessionService.getTipo() != 1" ng-init="cargarRecetasUsuario()">
+    
+        <div class="row">
+            <!-- SIDEBAR IZQUIERDA (iconos) -->
+            <aside class="col-1 d-flex flex-column align-items-center py-3">
+                <!-- Aquí solo esqueleto, luego le damos estilos bonitos -->
+                <button class="btn btn-link mb-3">🏠</button>
+                <button class="btn btn-link mb-3">＋</button>
+                <button class="btn btn-link mb-3">🔍</button>
+                <button class="btn btn-link mb-3">🕒</button>
+                <button class="btn btn-link mt-auto">⤴</button>
+            </aside>
+    
+            <!-- CONTENIDO PRINCIPAL -->
+            <main class="col-11">
+    
+                <!-- HEADER SUPERIOR -->
+                <div class="d-flex justify-content-between align-items-center my-3">
+                    <h2 class="mb-0">Sabor en Red</h2>
+    
+                    <div class="d-flex align-items-center gap-2">
+                        <span class="px-4 py-2 border rounded-pill">
+                            {{ nombreUsuario }}
+                        </span>
+                        <div class="rounded-circle border d-flex align-items-center justify-content-center"
+                             style="width: 40px; height: 40px;">
+                            <!-- icono usuario -->
+                            <span>👤</span>
+                        </div>
+                    </div>
+                </div>
+    
+                <!-- GRID DE RECETAS (Muro de imágenes) -->
+                {% raw %}
+                <div class="row" id="muroRecetas">
+                    <div class="col-12 col-sm-6 col-md-4 col-lg-3 mb-3"
+                         ng-repeat="r in recetasUsuario">
+
+                        <article class="card h-100 border-0">
+                            <div class="position-relative">
+                                <!-- Imagen de la receta -->
+                                <img ng-src="{{ r.Imagen }}"
+                                     alt="{{ r.Nombre }}"
+                                     class="img-fluid rounded"
+                                     style="width: 100%; height: 220px; object-fit: cover;">
+
+                                <!-- Botón favorito (corazón) -->
+                                <button type="button"
+                                        class="btn btn-light btn-sm position-absolute"
+                                        style="top: 10px; right: 10px;"
+                                        ng-click="toggleFavorito(r)">
+                                    🤍
+                                </button>
+
+                                <!-- Botón ver detalle (play/flecha) -->
+                                <button type="button"
+                                        class="btn btn-light btn-sm position-absolute"
+                                        style="bottom: 10px; right: 10px;"
+                                        ng-click="verReceta(r)">
+                                    ▶
+                                </button>
+                            </div>
+
+                            <!-- Nombre debajo de la foto -->
+                            <div class="mt-2">
+                                <h6 class="mb-0">{{ r.Nombre }}</h6>
+                                <!-- Si quieres, aquí puedes agregar categoría, etc. -->
+                            </div>
+                        </article>
+                    </div>
+                </div>
+                {% endraw %}
+                
+            </main>
+        </div>
+    
+    </section>
+
+
+</div>
+
+
+
+
+
+

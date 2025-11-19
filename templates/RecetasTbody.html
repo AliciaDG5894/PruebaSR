@@ -1,0 +1,21 @@
+{% for receta in recetas %}
+<tr>
+    <td>{{ receta.IdReceta }}</td>
+    <td>{{ receta.Nombre }}</td>
+    <td>{{ receta.Descripcion }}</td>
+    <td>{{ receta.Ingredientes }}</td>
+    <td>{{ receta.Utensilios }}</td>
+    <td>{{ receta.Instrucciones }}</td>
+    <td>{{ receta.Nutrientes }}</td>
+    <td>{{ receta.Categorias }}</td>
+    <td>{{ receta.Imagen }}</td>
+    <td>
+        <button class="btn btn-sm btn-info btn-facade" data-id="{{ receta.IdReceta }}">Ingredientes</button>
+        {% if session.get("login-tipo") == 1 %}
+        <button class="btn btn-sm btn-danger btn-eliminar" data-id="{{ receta.IdReceta }}">Eliminar</button>
+        {% endif %}
+    <td>
+</tr>
+{% endfor %}
+
+
