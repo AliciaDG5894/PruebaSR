@@ -789,41 +789,41 @@ app.controller("recetasCtrl", function ($scope, $http, SessionService, Categoria
     };
 
 // FACTORY
-    $.get("recetas/categorias", { categoria: "Rapida" }, function (rapida) {
-        const categoriaRapida = CategoriaFactory.create("Rapida", rapida);
-        console.log("Comida rápida FACTORY", categoriaRapida.getInfo());
-        $scope.categoriaRapida = categoriaRapida;
-    });
+    // $.get("recetas/categorias", { categoria: "Rapida" }, function (rapida) {
+    //     const categoriaRapida = CategoriaFactory.create("Rapida", rapida);
+    //     console.log("Comida rápida FACTORY", categoriaRapida.getInfo());
+    //     $scope.categoriaRapida = categoriaRapida;
+    // });
 
-    $.get("recetas/categorias", { categoria: "Desayunos" }, function (desayunos) {
-        const categoriaDesayunos = CategoriaFactory.create("Desayunos", desayunos);
-        console.log("Comida desayunos FACTORY", categoriaDesayunos.getInfo());
-        $scope.categoriaDesayunos = categoriaDesayunos;
-    });
+    // $.get("recetas/categorias", { categoria: "Desayunos" }, function (desayunos) {
+    //     const categoriaDesayunos = CategoriaFactory.create("Desayunos", desayunos);
+    //     console.log("Comida desayunos FACTORY", categoriaDesayunos.getInfo());
+    //     $scope.categoriaDesayunos = categoriaDesayunos;
+    // });
 
-    $.get("recetas/categorias", { categoria: "Comidas" }, function (comidas) {
-        const categoriaComidas = CategoriaFactory.create("Comidas", comidas);
-        console.log("Comidas  FACTORY", categoriaComidas.getInfo());
-        $scope.categoriaComidas = categoriaComidas;
-    });
+    // $.get("recetas/categorias", { categoria: "Comidas" }, function (comidas) {
+    //     const categoriaComidas = CategoriaFactory.create("Comidas", comidas);
+    //     console.log("Comidas  FACTORY", categoriaComidas.getInfo());
+    //     $scope.categoriaComidas = categoriaComidas;
+    // });
 
-    $.get("recetas/categorias", { categoria: "Cenas" }, function (cenas) {
-        const categoriaCenas = CategoriaFactory.create("Cenas", cenas);
-        console.log("Comida cena FACTORY", categoriaCenas.getInfo());
-        $scope.categoriaCenas = categoriaCenas;
-    });
+    // $.get("recetas/categorias", { categoria: "Cenas" }, function (cenas) {
+    //     const categoriaCenas = CategoriaFactory.create("Cenas", cenas);
+    //     console.log("Comida cena FACTORY", categoriaCenas.getInfo());
+    //     $scope.categoriaCenas = categoriaCenas;
+    // });
     
-    $.get("recetas/categorias", { categoria: "Postres" }, function (postres) {
-        const categoriaPostres = CategoriaFactory.create("Postres", postres);
-        console.log("Comida postre FACTORY", categoriaPostres.getInfo());
-        $scope.categoriaPostres = categoriaPostres;
-    });
+    // $.get("recetas/categorias", { categoria: "Postres" }, function (postres) {
+    //     const categoriaPostres = CategoriaFactory.create("Postres", postres);
+    //     console.log("Comida postre FACTORY", categoriaPostres.getInfo());
+    //     $scope.categoriaPostres = categoriaPostres;
+    // });
 
-    $.get("recetas/categorias", { categoria: "Saludable" }, function (saludable) {
-        const categoriaSaludable = CategoriaFactory.create("Saludable", saludable);
-        console.log("Comida saludable FACTORY", categoriaSaludable.getInfo());
-        $scope.categoriaSaludable = categoriaSaludable;
-    });
+    // $.get("recetas/categorias", { categoria: "Saludable" }, function (saludable) {
+    //     const categoriaSaludable = CategoriaFactory.create("Saludable", saludable);
+    //     console.log("Comida saludable FACTORY", categoriaSaludable.getInfo());
+    //     $scope.categoriaSaludable = categoriaSaludable;
+    // });
 
 
 // BUILDER
@@ -1199,6 +1199,7 @@ app.controller("favoritosCtrl", function($scope, $http, SessionService, Mensajes
 document.addEventListener("DOMContentLoaded", function (event) {
     activeMenuOption(location.hash)
 })
+
 
 
 
