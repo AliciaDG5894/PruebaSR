@@ -62,6 +62,10 @@ app.config(function ($routeProvider, $locationProvider) {
         templateUrl: "/recetas",
         controller: "recetasCtrl"
     })
+    .when("/favoritos", {
+        templateUrl: "/favoritos",
+        controller: "favoritosCtrl"
+    })
     .otherwise({
         redirectTo: "/"
     })
@@ -1034,8 +1038,35 @@ app.controller("recetasCtrl", function ($scope, $http, SessionService, Categoria
     });
 });
 
+app.controller("favoritosCtrl", function($scope) {
+
+    function cargarFavoritos() {
+        $.get("/favoritosTbody", function(trsHTML) {
+            $("#favoritosTbody").html(trsHTML);
+        });
+    }
+
+    cargarFavoritos();
+
+    // Eliminar favorito desde la tabla
+    $(document).on("click", "#favoritosTbody .btn-eliminar-fav", function() {
+        const id = $(this).data("id");
+
+        if (!confirm("¿Deseas eliminar este favorito?")) return;
+
+        $.post("/favoritos/eliminar", { IdFavorito: id }, function(resp) {
+            console.log("Favorito eliminado:", resp);
+            cargarFavoritos();
+        }).fail(function(xhr) {
+            console.error("Error al eliminar favorito:", xhr.responseText);
+        });
+    });
+});
+
+
 document.addEventListener("DOMContentLoaded", function (event) {
     activeMenuOption(location.hash)
 })
+
 
 
