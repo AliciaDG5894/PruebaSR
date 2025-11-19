@@ -518,7 +518,15 @@ def obtener_recetas_favoritos(Id_Usuario):
 
     return make_response(jsonify(registros))
 
+# BUSQUEDA
+@app.route("/busqueda")
+@login
+def busqueda():
+    return render_template("Busqueda.html")
 
+
+
+# FAVORITOS
 @app.route("/favoritos")
 @login
 def favoritos():
@@ -592,3 +600,7 @@ def favoritos_usuario():
     id_usuario = session.get("login-id")
     registros  = obtener_favoritos(con, id_usuario)
     return make_response(jsonify(registros))
+
+
+
+
