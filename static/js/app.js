@@ -62,6 +62,10 @@ app.config(function ($routeProvider, $locationProvider) {
         templateUrl: "/recetas",
         controller: "recetasCtrl"
     })
+    .when("/busqueda", {
+        templateUrl: "/busqueda",
+        controller: "busquedaCtrl"
+    })
     .when("/favoritos", {
         templateUrl: "/favoritos",
         controller: "favoritosCtrl"
@@ -1052,6 +1056,40 @@ app.controller("recetasCtrl", function ($scope, $http, SessionService, Categoria
     });
 });
 
+// BUS
+app.controller("busquedaCtrl", function ($scope, $http, SessionService, MensajesService) {
+    $scope.SessionService = SessionService;
+    $scope.textoBusqueda  = "";
+    $scope.resultados     = [];
+
+    $scope.buscar = function () {
+        const busqueda = $scope.textoBusqueda.trim();
+
+        if (busqueda === "") {
+            $scope.resultados = [];
+            return;
+        }
+
+        $http.get("/recetas/buscar", { params: { busqueda: busqueda } })
+            .then(function (resp) {
+                $scope.resultados = resp.data || [];
+            })
+            .catch(function (err) {
+                console.error("Error al buscar recetas:", err);
+                MensajesService.modal("Ocurrió un error al buscar recetas.");
+            });
+    };
+
+    // Opcional: buscar al presionar Enter desde el input
+    $scope.onKeyPress = function (event) {
+        if (event.which === 13) {
+            $scope.buscar();
+        }
+    };
+});
+
+
+// FAV
 app.controller("favoritosCtrl", function($scope, $http, SessionService, MensajesService) {
     $scope.SessionService = SessionService;
     function cargarFavoritosTabla() {
@@ -1094,3 +1132,4 @@ app.controller("favoritosCtrl", function($scope, $http, SessionService, Mensajes
 document.addEventListener("DOMContentLoaded", function (event) {
     activeMenuOption(location.hash)
 })
+
