@@ -1060,79 +1060,85 @@ app.controller("recetasCtrl", function ($scope, $http, SessionService, Categoria
 app.controller("busquedaCtrl", function ($scope, $http, SessionService, CategoriaFactory) {
 
     $scope.SessionService = SessionService;
+
     $scope.textoBusqueda = "";
-    $scope.resultados = [];
+    $scope.resultados    = [];
 
     // ================================
-    // CARGAR CATEGORÍAS (Factory)
+    // CATEGORÍAS (Factory)
     // ================================
     function cargarCategorias() {
 
         $.get("recetas/categorias", { categoria: "Desayunos" }, function (data) {
-            $scope.$apply(() => {
+            $scope.$apply(function () {
                 $scope.categoriaDesayunos = CategoriaFactory.create("Desayunos", data);
             });
         });
 
         $.get("recetas/categorias", { categoria: "Comidas" }, function (data) {
-            $scope.$apply(() => {
+            $scope.$apply(function () {
                 $scope.categoriaComidas = CategoriaFactory.create("Comidas", data);
             });
         });
 
         $.get("recetas/categorias", { categoria: "Cenas" }, function (data) {
-            $scope.$apply(() => {
+            $scope.$apply(function () {
                 $scope.categoriaCenas = CategoriaFactory.create("Cenas", data);
             });
         });
 
         $.get("recetas/categorias", { categoria: "Postres" }, function (data) {
-            $scope.$apply(() => {
+            $scope.$apply(function () {
                 $scope.categoriaPostres = CategoriaFactory.create("Postres", data);
             });
         });
 
         $.get("recetas/categorias", { categoria: "Saludable" }, function (data) {
-            $scope.$apply(() => {
+            $scope.$apply(function () {
                 $scope.categoriaSaludable = CategoriaFactory.create("Saludable", data);
             });
         });
 
         $.get("recetas/categorias", { categoria: "Rapida" }, function (data) {
-            $scope.$apply(() => {
+            $scope.$apply(function () {
                 $scope.categoriaRapida = CategoriaFactory.create("Rapida", data);
             });
         });
-
     }
 
     cargarCategorias();
 
+    // ================================
+    // BUSCAR RECETAS
+    // ================================
     $scope.buscar = function () {
-
-        let q = $scope.textoBusqueda.trim();
+        const q = $scope.textoBusqueda.trim();
         if (!q) {
             $scope.resultados = [];
             return;
         }
 
-        $http.get("/recetas/buscar", { params: { busqueda: q } })
-            .then(function (resp) {
-                $scope.resultados = resp.data;
-            })
-            .catch(function (err) {
-                console.error("Error buscando:", err);
-            });
+        console.log("🔎 Buscando:", q);
+
+        $http({
+            method: "GET",
+            url: "/recetas/buscar",
+            params: { busqueda: q }
+        }).then(function (resp) {
+            console.log("✅ Respuesta búsqueda:", resp.data);
+            $scope.resultados = resp.data || [];
+        }).catch(function (err) {
+            console.error("❌ Error en /recetas/buscar:", err);
+        });
     };
 
-    // Enter para buscar
     $scope.onKeyPress = function (ev) {
         if (ev.which === 13) {
             $scope.buscar();
         }
     };
-
 });
+
 
 
 
@@ -1179,6 +1185,7 @@ app.controller("favoritosCtrl", function($scope, $http, SessionService, Mensajes
 document.addEventListener("DOMContentLoaded", function (event) {
     activeMenuOption(location.hash)
 })
+
 
 
 
