@@ -67,45 +67,45 @@ def obtener_favoritos(con, id_usuario=None):
 #     return registros
 
 
-# def guardar_favorito(con, id_usuario, id_receta, comentario=None, calificacion=None):
+def guardar_favorito(con, id_usuario, id_receta, comentario=None, calificacion=None):
 
-#     cursor = con.cursor(dictionary=True)
+    cursor = con.cursor(dictionary=True)
 
-#     try:
-#         sql_buscar = """
-#         SELECT IdFavorito
-#         FROM Favoritos
-#         WHERE Id_Usuario = %s
-#           AND IdReceta   = %s
-#         """
-#         val_buscar = (id_usuario, id_receta)
-#         cursor.execute(sql_buscar, val_buscar)
-#         row = cursor.fetchone()
+    try:
+        sql_buscar = """
+        SELECT IdFavorito
+        FROM Favoritos
+        WHERE Id_Usuario = %s
+          AND IdReceta   = %s
+        """
+        val_buscar = (id_usuario, id_receta)
+        cursor.execute(sql_buscar, val_buscar)
+        row = cursor.fetchone()
 
-#         ahora = datetime.now()
+        ahora = datetime.now()
 
-#         if row:
-#             sql_update = """
-#             UPDATE Favoritos
-#             SET Comentario  = %s,
-#                 Calificacion = %s,
-#                 Fecha        = %s
-#             WHERE IdFavorito = %s
-#             """
-#             val_update = (comentario, calificacion, ahora, row["IdFavorito"])
-#             cursor.execute(sql_update, val_update)
-#         else:
-#             # No existe → INSERT
-#             sql_insert = """
-#             INSERT INTO Favoritos (Id_Usuario, IdReceta, Comentario, Calificacion, Fecha)
-#             VALUES (%s, %s, %s, %s, %s)
-#             """
-#             val_insert = (id_usuario, id_receta, comentario, calificacion, ahora)
-#             cursor.execute(sql_insert, val_insert)
+        if row:
+            sql_update = """
+            UPDATE Favoritos
+            SET Comentario  = %s,
+                Calificacion = %s,
+                Fecha        = %s
+            WHERE IdFavorito = %s
+            """
+            val_update = (comentario, calificacion, ahora, row["IdFavorito"])
+            cursor.execute(sql_update, val_update)
+        else:
+            # No existe → INSERT
+            sql_insert = """
+            INSERT INTO Favoritos (Id_Usuario, IdReceta, Comentario, Calificacion, Fecha)
+            VALUES (%s, %s, %s, %s, %s)
+            """
+            val_insert = (id_usuario, id_receta, comentario, calificacion, ahora)
+            cursor.execute(sql_insert, val_insert)
 
-#         con.commit()
-#     finally:
-#         cursor.close()
+        con.commit()
+    finally:
+        cursor.close()
 
 
 def eliminar_favorito(con, id_favorito, id_usuario):
@@ -123,4 +123,5 @@ def eliminar_favorito(con, id_favorito, id_usuario):
         con.commit()
     finally:
         cursor.close()
+
 
