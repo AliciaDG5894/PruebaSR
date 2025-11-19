@@ -16,9 +16,7 @@
         </div>
     </div>
 
-    <!-- =======================================================
-         VISTA ADMIN (Tipo_Usuario = 1) - puede crear / eliminar
-         ======================================================= -->
+<!-- ADMIN -->
     <section ng-if="SessionService.getTipo() == 1">
 
         <!-- FORMULARIO -->
@@ -147,9 +145,7 @@
 
     </section>
 
-    <!-- =======================================================
-         VISTA USUARIO NORMAL (Tipo_Usuario != 1) - solo lectura
-         ======================================================= -->
+<!-- USER  -->
     <section ng-if="SessionService.getTipo() != 1" ng-init="cargarRecetasUsuario()">
     
         <div class="row">
@@ -230,6 +226,7 @@
 
 
 </div>
+
 
 
 
