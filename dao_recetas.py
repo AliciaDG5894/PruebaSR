@@ -1,32 +1,7 @@
-# dao_recetas.py
-"""
-DAO (Data Access Object) para la entidad Recetas.
-
-Este módulo NO maneja request, ni sesiones, ni archivos,
-solo se encarga de hablar con la base de datos usando la
-conexión que le mandes desde app.py (get_connection()).
-"""
-
 import mysql.connector
 
-
+# GUARDAR
 def guardar_receta(con, datos):
-    """
-    Inserta o actualiza una receta en la BD.
-
-    Espera un diccionario con:
-    {
-        "IdReceta": ... (puede ser None o vacío para insertar),
-        "Nombre": ...,
-        "Descripcion": ...,
-        "Ingredientes": ...,
-        "Utensilios": ...,
-        "Instrucciones": ...,
-        "Nutrientes": ...,
-        "Categorias": ...,
-        "Imagen": ... (ruta final de la imagen o None)
-    }
-    """
     IdReceta      = datos.get("IdReceta")
     Nombre        = datos.get("Nombre")
     Descripcion   = datos.get("Descripcion")
@@ -40,7 +15,7 @@ def guardar_receta(con, datos):
     cursor = con.cursor()
 
     try:
-        if IdReceta:  # UPDATE
+        if IdReceta:  
             sql = """
             UPDATE Recetas
             SET Nombre        = %s,
@@ -54,42 +29,18 @@ def guardar_receta(con, datos):
             WHERE IdReceta    = %s
             """
             val = (
-                Nombre,
-                Descripcion,
-                Ingredientes,
-                Utensilios,
-                Instrucciones,
-                Nutrientes,
-                Categorias,
-                Imagen,
-                IdReceta
+                Nombre, Descripcion, Ingredientes, Utensilios, Instrucciones, Nutrientes, Categorias, Imagen, IdReceta
             )
         else:        # INSERT
             sql = """
             INSERT INTO Recetas (
-                IdReceta,
-                Nombre,
-                Descripcion,
-                Ingredientes,
-                Utensilios,
-                Instrucciones,
-                Nutrientes,
-                Categorias,
-                Imagen
+                IdReceta, Nombre, Descripcion, Ingredientes, Utensilios, Instrucciones, Nutrientes, Categorias, Imagen
             ) VALUES (
                 %s,%s,%s,%s,%s,%s,%s,%s,%s
             )
             """
             val = (
-                IdReceta,
-                Nombre,
-                Descripcion,
-                Ingredientes,
-                Utensilios,
-                Instrucciones,
-                Nutrientes,
-                Categorias,
-                Imagen
+                IdReceta, Nombre, Descripcion, Ingredientes, Utensilios, Instrucciones, Nutrientes, Categorias, Imagen
             )
 
         cursor.execute(sql, val)
@@ -99,9 +50,7 @@ def guardar_receta(con, datos):
 
 
 def eliminar_receta(con, id_receta: int):
-    """
-    Elimina una receta por IdReceta.
-    """
+
     cursor = con.cursor()
     try:
         sql = "DELETE FROM Recetas WHERE IdReceta = %s"
@@ -111,24 +60,13 @@ def eliminar_receta(con, id_receta: int):
     finally:
         cursor.close()
 
-
+# BUSCAR
 def buscar_recetas(con, busqueda: str):
-    """
-    Busca recetas por nombre, ingredientes, nutrientes o categorías.
-    Retorna una lista de dicts (cursor dictionary=True).
-    """
     busqueda = f"%{busqueda}%"
     cursor = con.cursor(dictionary=True)
 
     sql = """
-    SELECT  IdReceta,
-            Nombre,
-            Descripcion,
-            Ingredientes,
-            Utensilios,
-            Instrucciones,
-            Nutrientes,
-            Categorias
+    SELECT  IdReceta, Nombre, Descripcion, Ingredientes, Utensilios, Instrucciones, Nutrientes, Categorias
     FROM Recetas
     WHERE Nombre      LIKE %s
        OR Ingredientes LIKE %s
@@ -147,11 +85,9 @@ def buscar_recetas(con, busqueda: str):
 
     return registros
 
-
+# CATEGORIA
 def buscar_por_categoria(con, categoria: str):
-    """
-    Devuelve nombres de recetas filtradas por categoría.
-    """
+
     cursor = con.cursor(dictionary=True)
 
     sql = """
@@ -170,3 +106,4 @@ def buscar_por_categoria(con, categoria: str):
         cursor.close()
 
     return registros
+
