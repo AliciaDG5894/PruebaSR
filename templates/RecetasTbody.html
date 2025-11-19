@@ -11,11 +11,13 @@
     <td>{{ receta.Imagen }}</td>
     <td>
         <button class="btn btn-sm btn-info btn-facade" data-id="{{ receta.IdReceta }}">Ingredientes</button>
+        <button class="btn btn-sm btn-warning btn-editar" data-id="${receta.IdReceta}">Editar</button>
         {% if session.get("login-tipo") == 1 %}
         <button class="btn btn-sm btn-danger btn-eliminar" data-id="{{ receta.IdReceta }}">Eliminar</button>
         {% endif %}
     <td>
 </tr>
 {% endfor %}
+
 
 
