@@ -27,6 +27,13 @@ from dao_recetas import (
     buscar_por_categoria,
 )
 
+from dao_favoritos import (
+    obtener_favoritos,
+    guardar_favorito,
+    eliminar_favorito,
+)
+
+
 app            = Flask(__name__)
 app.secret_key = "Test12345"
 CORS(app)
@@ -510,6 +517,72 @@ def obtener_recetas_favoritos(Id_Usuario):
         # con.close()
 
     return make_response(jsonify(registros))
+
+
+@app.route("/favoritos")
+@login
+def favoritos():
+    return render_template("Favoritos.html")
+
+@app.route("/favoritosTbody")
+@login
+def favoritosTbody():
+    try:
+        con = get_connection()
+    except mysql.connector.Error as error:
+        return make_response(jsonify({
+            "estado": "error",
+            "respuesta": f"Error al conectar a la base de datos: {error}",
+        }), 500)
+
+    id_usuario = session.get("login-id")
+    registros  = obtener_favoritos(con, id_usuario)
+
+    return render_template("FavoritosTbody.html", favoritos=registros)
+
+@app.route("/favoritos/guardar", methods=["POST"])
+@login
+def guardarFavorito():
+    try:
+        con = get_connection()
+    except mysql.connector.Error as error:
+        return make_response(jsonify({
+            "estado": "error",
+            "respuesta": f"Error al conectar a la base de datos: {error}",
+        }), 500)
+
+    id_usuario  = session.get("login-id")
+    id_receta   = request.form.get("IdReceta")
+    comentario  = request.form.get("Comentario")
+    calificacion = request.form.get("Calificacion")
+
+    guardar_favorito(con, id_usuario, id_receta, comentario, calificacion)
+
+    return make_response(jsonify({
+        "estado": "ok",
+        "respuesta": "Favorito guardado/actualizado correctamente"
+    }))
+
+@app.route("/favoritos/eliminar", methods=["POST"])
+@login
+def eliminarFavorito():
+    try:
+        con = get_connection()
+    except mysql.connector.Error as error:
+        return make_response(jsonify({
+            "estado": "error",
+            "respuesta": f"Error al conectar a la base de datos: {error}",
+        }), 500)
+
+    id_usuario  = session.get("login-id")
+    id_favorito = request.form.get("IdFavorito")
+
+    eliminar_favorito(con, id_favorito, id_usuario)
+
+    return make_response(jsonify({
+        "estado": "ok",
+        "respuesta": "Favorito eliminado correctamente"
+    }))
 
 
 
