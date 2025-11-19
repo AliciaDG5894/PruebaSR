@@ -19,6 +19,13 @@ import pusher
 import pytz
 from werkzeug.utils import secure_filename
 
+from dao_recetas import (
+    guardar_receta,
+    eliminar_receta,
+    buscar_recetas,
+    buscar_por_categoria,
+)
+
 app            = Flask(__name__)
 app.secret_key = "Test12345"
 CORS(app)
@@ -245,6 +252,7 @@ def guardarReceta():
             "respuesta": f"Error al conectar a la base de datos: {error}",
         }), 500)
 
+    # 1. Leer datos del formulario
     IdReceta      = request.form.get("IdReceta")
     Nombre        = request.form.get("Nombre")
     Descripcion   = request.form.get("Descripcion")
@@ -254,93 +262,43 @@ def guardarReceta():
     Nutrientes    = request.form.get("Nutrientes")
     Categorias    = request.form.get("Categorias")
 
-    # Texto opcional (por si luego usas un input de texto Imagen)
     Imagen_form = request.form.get("Imagen")
+    file        = request.files.get("fileImagen")
 
-    # Archivo subido desde el input type="file" name="fileImagen"
-    file = request.files.get("fileImagen")
+    # 2. Resolver la ruta de la imagen (igual que ya lo hacías)
+    Imagen = Imagen_form  # puede ser None
 
-    # Valor por defecto de Imagen
-    Imagen = Imagen_form  # puede ser None si no envías nada
-
-    # Si viene archivo, lo guardamos y usamos esa ruta
     if file and file.filename:
-        filename = secure_filename(file.filename)
-
         uploads_dir = os.path.join(app.root_path, "static", "uploads")
         os.makedirs(uploads_dir, exist_ok=True)
 
+        filename  = file.filename  # podrías sanitizar el nombre
         file_path = os.path.join(uploads_dir, filename)
         file.save(file_path)
 
-        # Ruta que se guardará en la BD (para usar directo en <img src="...">)
         Imagen = f"/static/uploads/{filename}"
-    
-    cursor = con.cursor()
 
-    try:
-        if IdReceta:
-            sql = """
-            UPDATE Recetas
-            SET Nombre        = %s,
-                Descripcion   = %s,
-                Ingredientes  = %s,
-                Utensilios    = %s,
-                Instrucciones = %s,
-                Nutrientes    = %s,
-                Categorias    = %s,
-                Imagen        = %s
-            WHERE IdReceta = %s
-            """
-            val = (
-                Nombre,
-                Descripcion,
-                Ingredientes,
-                Utensilios,
-                Instrucciones,
-                Nutrientes,
-                Categorias,
-                Imagen,
-                IdReceta
-            )
-        else:
-            sql = """
-            INSERT INTO Recetas (
-                IdReceta,
-                Nombre,
-                Descripcion,
-                Ingredientes,
-                Utensilios,
-                Instrucciones,
-                Nutrientes,
-                Categorias,
-                Imagen
-            ) VALUES (
-                %s,%s,%s,%s,%s,%s,%s,%s,%s
-            )
-            """
-            val = (
-                IdReceta,
-                Nombre,
-                Descripcion,
-                Ingredientes,
-                Utensilios,
-                Instrucciones,
-                Nutrientes,
-                Categorias,
-                Imagen
-            )
+    # 3. Armar el diccionario para el DAO
+    datos_receta = {
+        "IdReceta":      IdReceta,
+        "Nombre":        Nombre,
+        "Descripcion":   Descripcion,
+        "Ingredientes":  Ingredientes,
+        "Utensilios":    Utensilios,
+        "Instrucciones": Instrucciones,
+        "Nutrientes":    Nutrientes,
+        "Categorias":    Categorias,
+        "Imagen":        Imagen,
+    }
 
-        cursor.execute(sql, val)
-        con.commit()
-    finally:
-        cursor.close()
-        if con and con.is_connected():
-            con.close()
+    # 4. Llamar al DAO (aquí ya no hay SQL)
+    guardar_receta(con, datos_receta)
 
+    # 5. Notificar por Pusher y responder
     pusherRecetas()
-    
     return make_response(jsonify({}))
+
+
 
 
 # @app.route("/recetas", methods=["GET", "POST"])
@@ -557,7 +515,6 @@ def recetasTbody():
 # ELIMINAR
 @app.route("/recetas/eliminar", methods=["POST"])
 @login
-@admin
 def eliminarReceta():
     try:
         con = get_connection()
@@ -567,26 +524,14 @@ def eliminarReceta():
             "respuesta": f"Error al conectar a la base de datos: {error}",
         }), 500)
 
-    id = request.form["id"]
+    id_receta = request.form["id"]
 
-    cursor = con.cursor(dictionary=True)
-    try:
-        sql    = """
-        DELETE FROM Recetas
-        WHERE IdReceta = %s
-        """
-        val    = (id,)
-
-        cursor.execute(sql, val)
-        con.commit()
-    finally:
-        cursor.close()
-        if con and con.is_connected():
-            con.close()
+    # DAO se encarga del DELETE
+    eliminar_receta(con, id_receta)
 
     pusherRecetas()
-    
     return make_response(jsonify({}))
+
 
 
 # # EDITAR
@@ -626,47 +571,12 @@ def buscarReceta():
         }), 500)
 
     args     = request.args
-    busqueda = args["busqueda"]
-    busqueda = f"%{busqueda}%"
-    
-# EN WHERE BUSQUEDA PUSE SOLO TRES POR EL "VAL" NO SE SI SE LIMITE (si se limita)
-    cursor = con.cursor(dictionary=True)
-    sql    = """
-    SELECT  IdReceta,
-            Nombre,
-            Descripcion,
-            Ingredientes,
-            Utensilios,
-            Instrucciones,
-            Nutrientes,
-            Categorias
-           
-    FROM Recetas
-    
-    WHERE Nombre LIKE %s
-       OR Ingredientes LIKE %s
-       OR Nutrientes LIKE %s
-       OR Categorias LIKE %s
+    busqueda = args.get("busqueda", "")
 
-    ORDER BY IdReceta DESC
-    LIMIT 10 OFFSET 0
-    """
-    val    = (busqueda, busqueda, busqueda, busqueda)
-
-    try:
-        cursor.execute(sql, val)
-        registros = cursor.fetchall()
-
-
-    except mysql.connector.errors.ProgrammingError as error:
-        print(f"Ocurrió un error de programación en MySQL: {error}")
-        registros = []
-
-    finally:
-        cursor.close()
-        con.close()
+    registros = buscar_recetas(con, busqueda)
 
     return make_response(jsonify(registros))
+
 
 
 @app.route("/recetas/categorias", methods=["GET"])
@@ -680,35 +590,13 @@ def buscarCategorias():
             "respuesta": f"Error al conectar a la base de datos: {error}",
         }), 500)
 
-    args     = request.args
-    categoria = args["categoria"]
-    
-# EN WHERE BUSQUEDA PUSE SOLO TRES POR EL "VAL" NO SE SI SE LIMITE (si se limita)
-    cursor = con.cursor(dictionary=True)
-    sql    = """
-    SELECT  Nombre
-           
-    FROM Recetas
-    
-    WHERE Categorias = %s
+    args      = request.args
+    categoria = args.get("categoria", "")
 
-    ORDER BY Nombre ASC
-    LIMIT 10 OFFSET 0
-    """
-    val    = (categoria,)
-
-    try:
-        cursor.execute(sql, val)
-        registros = cursor.fetchall()
-    except mysql.connector.errors.ProgrammingError as error:
-        print(f"Ocurrió un error de programación en MySQL: {error}")
-        registros = []
-    finally:
-        cursor.close()
-        if con and con.is_connected():
-            con.close()
+    registros = buscar_por_categoria(con, categoria)
 
     return make_response(jsonify(registros))
+
 
 @app.route("/recetas/<int:Id_Usuario>", methods=["GET"])
 @login
@@ -743,6 +631,7 @@ def obtener_recetas_favoritos(Id_Usuario):
         # con.close()
 
     return make_response(jsonify(registros))
+
 
 
 
