@@ -707,7 +707,7 @@ app.config(function ($routeProvider, $locationProvider, $provide) {
     })
 })
 
-app.controller("recetasCtrl", function ($scope, $http, SessionService, CategoriaFactory, MensajesService, RecetaFacade, RecetaBuilder) {
+app.controller("recetasCtrl", function ($scope, $http, SessionService, MensajesService, RecetaFacade, RecetaBuilder) {
     function buscarRecetas() {
         $.get("/recetasTbody", function (trsHTML) {
             $("#recetasTbody").html(trsHTML);
@@ -1056,101 +1056,140 @@ app.controller("recetasCtrl", function ($scope, $http, SessionService, Categoria
     });
 });
 
-// BUS
-app.controller("busquedaCtrl", function ($scope, SessionService, CategoriaFactory, MensajesService) {
+
+app.controller("busquedaCtrl", function ($scope, $http, SessionService) {
+
+    console.log("✅ busquedaCtrl INICIALIZADO");
 
     $scope.SessionService = SessionService;
+    $scope.textoBusqueda  = "";
+    $scope.resultados     = [];
 
-    $scope.textoBusqueda = "";
-    $scope.resultados    = [];
-
-    // ================================
-    // CATEGORÍAS (Factory)
-    // ================================
-    function cargarCategorias() {
-
-        $.get("recetas/categorias", { categoria: "Desayunos" }, function (data) {
-            $scope.$apply(function () {
-                $scope.categoriaDesayunos = CategoriaFactory.create("Desayunos", data);
-                console.log("Desayunos FACTORY", $scope.categoriaDesayunos.getInfo());
-            });
-        });
-
-        $.get("recetas/categorias", { categoria: "Comidas" }, function (data) {
-            $scope.$apply(function () {
-                $scope.categoriaComidas = CategoriaFactory.create("Comidas", data);
-                console.log("Comidas FACTORY", $scope.categoriaComidas.getInfo());
-            });
-        });
-
-        $.get("recetas/categorias", { categoria: "Cenas" }, function (data) {
-            $scope.$apply(function () {
-                $scope.categoriaCenas = CategoriaFactory.create("Cenas", data);
-                console.log("Cenas FACTORY", $scope.categoriaCenas.getInfo());
-            });
-        });
-
-        $.get("recetas/categorias", { categoria: "Postres" }, function (data) {
-            $scope.$apply(function () {
-                $scope.categoriaPostres = CategoriaFactory.create("Postres", data);
-                console.log("Postres FACTORY", $scope.categoriaPostres.getInfo());
-            });
-        });
-
-        $.get("recetas/categorias", { categoria: "Saludable" }, function (data) {
-            $scope.$apply(function () {
-                $scope.categoriaSaludable = CategoriaFactory.create("Saludable", data);
-                console.log("Saludable FACTORY", $scope.categoriaSaludable.getInfo());
-            });
-        });
-
-        $.get("recetas/categorias", { categoria: "Rapida" }, function (data) {
-            $scope.$apply(function () {
-                $scope.categoriaRapida = CategoriaFactory.create("Rapida", data);
-                console.log("Rápida FACTORY", $scope.categoriaRapida.getInfo());
-            });
-        });
-    }
-
-    cargarCategorias();
-
-    // ================================
-    // BUSCAR RECETAS (MISMA RUTA QUE ADMIN)
-    // ================================
     $scope.buscar = function () {
-        var q = $scope.textoBusqueda.trim();
+        var q = ($scope.textoBusqueda || "").trim();
+
+        console.log("🟦 buscar() llamado, textoBusqueda =", q);
+
         if (!q) {
+            console.log("⚠ Texto vacío, no busco");
             $scope.resultados = [];
             return;
         }
 
-        console.log("🔎 Buscando:", q);
-
-        $.get("/recetas/buscar", { busqueda: q }, function (registros) {
-            console.log("✅ Respuesta /recetas/buscar:", registros);
-
-            $scope.$apply(function () {
-                $scope.resultados = registros || [];
+        $http.get("/recetas/buscar", { params: { busqueda: q } })
+            .then(function (resp) {
+                console.log("🟩 /recetas/buscar RESPUESTA:", resp.data);
+                $scope.resultados = resp.data || [];
+            })
+            .catch(function (err) {
+                console.error("🟥 Error en /recetas/buscar:", err);
             });
-
-            if (!$scope.resultados.length) {
-                MensajesService.modal('No se encontraron recetas para "' + q + '".');
-            }
-
-        }).fail(function (xhr) {
-            console.error("❌ Error en /recetas/buscar:", xhr.responseText);
-            MensajesService.modal("Ocurrió un error al buscar recetas.");
-        });
     };
 
-    // Enter para buscar
     $scope.onKeyPress = function (ev) {
         if (ev.which === 13) {
             $scope.buscar();
         }
     };
-
 });
+
+
+
+// BUS
+// app.controller("busquedaCtrl", function ($scope, SessionService, CategoriaFactory, MensajesService) {
+
+//     $scope.SessionService = SessionService;
+
+//     $scope.textoBusqueda = "";
+//     $scope.resultados    = [];
+
+//     // ================================
+//     // CATEGORÍAS (Factory)
+//     // ================================
+//     function cargarCategorias() {
+
+//         $.get("recetas/categorias", { categoria: "Desayunos" }, function (data) {
+//             $scope.$apply(function () {
+//                 $scope.categoriaDesayunos = CategoriaFactory.create("Desayunos", data);
+//                 console.log("Desayunos FACTORY", $scope.categoriaDesayunos.getInfo());
+//             });
+//         });
+
+//         $.get("recetas/categorias", { categoria: "Comidas" }, function (data) {
+//             $scope.$apply(function () {
+//                 $scope.categoriaComidas = CategoriaFactory.create("Comidas", data);
+//                 console.log("Comidas FACTORY", $scope.categoriaComidas.getInfo());
+//             });
+//         });
+
+//         $.get("recetas/categorias", { categoria: "Cenas" }, function (data) {
+//             $scope.$apply(function () {
+//                 $scope.categoriaCenas = CategoriaFactory.create("Cenas", data);
+//                 console.log("Cenas FACTORY", $scope.categoriaCenas.getInfo());
+//             });
+//         });
+
+//         $.get("recetas/categorias", { categoria: "Postres" }, function (data) {
+//             $scope.$apply(function () {
+//                 $scope.categoriaPostres = CategoriaFactory.create("Postres", data);
+//                 console.log("Postres FACTORY", $scope.categoriaPostres.getInfo());
+//             });
+//         });
+
+//         $.get("recetas/categorias", { categoria: "Saludable" }, function (data) {
+//             $scope.$apply(function () {
+//                 $scope.categoriaSaludable = CategoriaFactory.create("Saludable", data);
+//                 console.log("Saludable FACTORY", $scope.categoriaSaludable.getInfo());
+//             });
+//         });
+
+//         $.get("recetas/categorias", { categoria: "Rapida" }, function (data) {
+//             $scope.$apply(function () {
+//                 $scope.categoriaRapida = CategoriaFactory.create("Rapida", data);
+//                 console.log("Rápida FACTORY", $scope.categoriaRapida.getInfo());
+//             });
+//         });
+//     }
+
+//     cargarCategorias();
+
+//     // ================================
+//     // BUSCAR RECETAS (MISMA RUTA QUE ADMIN)
+//     // ================================
+//     $scope.buscar = function () {
+//         var q = $scope.textoBusqueda.trim();
+//         if (!q) {
+//             $scope.resultados = [];
+//             return;
+//         }
+
+//         console.log("🔎 Buscando:", q);
+
+//         $.get("/recetas/buscar", { busqueda: q }, function (registros) {
+//             console.log("✅ Respuesta /recetas/buscar:", registros);
+
+//             $scope.$apply(function () {
+//                 $scope.resultados = registros || [];
+//             });
+
+//             if (!$scope.resultados.length) {
+//                 MensajesService.modal('No se encontraron recetas para "' + q + '".');
+//             }
+
+//         }).fail(function (xhr) {
+//             console.error("❌ Error en /recetas/buscar:", xhr.responseText);
+//             MensajesService.modal("Ocurrió un error al buscar recetas.");
+//         });
+//     };
+
+//     // Enter para buscar
+//     $scope.onKeyPress = function (ev) {
+//         if (ev.which === 13) {
+//             $scope.buscar();
+//         }
+//     };
+
+// });
 
 
 
@@ -1199,6 +1238,7 @@ app.controller("favoritosCtrl", function($scope, $http, SessionService, Mensajes
 document.addEventListener("DOMContentLoaded", function (event) {
     activeMenuOption(location.hash)
 })
+
 
 
 
