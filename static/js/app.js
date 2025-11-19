@@ -948,6 +948,7 @@ app.controller("recetasCtrl", function ($scope, $http, SessionService, Categoria
                         <td>${receta.Categorias}</td>
                         <td>
                             <button class="btn btn-sm btn-info btn-facade" data-id="${receta.IdReceta}">Ver Facade</button>
+                            <button class="btn btn-sm btn-warning btn-editar" data-id="${receta.IdReceta}">Editar</button>
                             <button class="btn btn-sm btn-danger btn-eliminar" data-id="${receta.IdReceta}">Eliminar</button>
                         </td>
                     </tr>
@@ -979,6 +980,50 @@ app.controller("recetasCtrl", function ($scope, $http, SessionService, Categoria
         }
     });
 
+// EDITAR
+    $(document).on("click", "#recetasTbody .btn-editar", function() {
+        const id = $(this).data("id");
+    
+        $.get("/recetas/detalle/" + id, function(receta) {
+    
+            // Llenar los campos del formulario con la receta
+            $("#idReceta").val(receta.IdReceta);
+            $("#txtNombre").val(receta.Nombre);
+            $("#txtDescripcion").val(receta.Descripcion);
+            $("#txtIngredientes").val(receta.Ingredientes);
+            $("#txtUtensilios").val(receta.Utensilios);
+            $("#txtInstrucciones").val(receta.Instrucciones);
+            $("#txtNutrientes").val(receta.Nutrientes);
+            $("#txtCategoria").val(receta.Categorias);
+    
+            const fileInput = document.getElementById("fileImagen");
+            if (fileInput) {
+                fileInput.value = "";
+            }
+    
+            // vista previa usando el Builder
+            if (!$scope.$$phase) {
+                $scope.$apply(function () {
+                    $scope.nuevaReceta = RecetaBuilder.reset()
+                        .setNombre(receta.Nombre)
+                        .setDescripcion(receta.Descripcion)
+                        .setIngredientes(receta.Ingredientes)
+                        .setUtensilios(receta.Utensilios)
+                        .setInstrucciones(receta.Instrucciones)
+                        .setNutrientes(receta.Nutrientes)
+                        .setCategorias(receta.Categorias)
+                        .setImagen(receta.Imagen)
+                        .build();
+                });
+            }
+    
+        }).fail(function(xhr) {
+            console.error("Error al obtener detalle de receta:", xhr.responseText);
+            MensajesService.modal("Ocurrió un error al cargar la receta para edición.");
+        });
+    });
+
+
     Pusher.logToConsole = true;
     var pusher = new Pusher('b51b00ad61c8006b2e6f', {
       cluster: 'us2'
@@ -992,4 +1037,5 @@ app.controller("recetasCtrl", function ($scope, $http, SessionService, Categoria
 document.addEventListener("DOMContentLoaded", function (event) {
     activeMenuOption(location.hash)
 })
+
 
