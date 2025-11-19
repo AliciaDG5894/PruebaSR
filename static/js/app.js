@@ -1059,28 +1059,31 @@ app.controller("recetasCtrl", function ($scope, $http, SessionService, Categoria
 // BUS
 app.controller("busquedaCtrl", function ($scope, $http, SessionService, MensajesService) {
     $scope.SessionService = SessionService;
-    $scope.textoBusqueda  = "";
-    $scope.resultados     = [];
+
+    $scope.textoBusqueda = "";
+    $scope.resultados    = [];
 
     $scope.buscar = function () {
-        const busqueda = $scope.textoBusqueda.trim();
+        const q = $scope.textoBusqueda.trim();
 
-        if (busqueda === "") {
+        if (!q) {
             $scope.resultados = [];
             return;
         }
-
-        $http.get("/recetas/buscar", { params: { busqueda: busqueda } })
-            .then(function (resp) {
-                $scope.resultados = resp.data || [];
-            })
-            .catch(function (err) {
-                console.error("Error al buscar recetas:", err);
-                MensajesService.modal("Ocurrió un error al buscar recetas.");
-            });
+        $http({
+            method: "GET",
+            url: "/recetas/buscar",
+            params: { busqueda: q }
+        }).then(function (resp) {
+            console.log("Resultados búsqueda:", resp.data);
+            $scope.resultados = resp.data || [];
+        }).catch(function (err) {
+            console.error("Error al buscar recetas:", err);
+            MensajesService.modal("Ocurrió un error al buscar recetas.");
+        });
     };
 
-    // Opcional: buscar al presionar Enter desde el input
+    // Enter en el input
     $scope.onKeyPress = function (event) {
         if (event.which === 13) {
             $scope.buscar();
@@ -1132,4 +1135,5 @@ app.controller("favoritosCtrl", function($scope, $http, SessionService, Mensajes
 document.addEventListener("DOMContentLoaded", function (event) {
     activeMenuOption(location.hash)
 })
+
 
