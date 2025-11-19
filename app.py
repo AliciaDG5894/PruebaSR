@@ -23,6 +23,7 @@ from dao_recetas import (
     guardar_receta,
     eliminar_receta,
     buscar_recetas,
+    editar_receta,
     buscar_por_categoria,
 )
 
@@ -252,7 +253,6 @@ def guardarReceta():
             "respuesta": f"Error al conectar a la base de datos: {error}",
         }), 500)
 
-    # 1. Leer datos del formulario
     IdReceta      = request.form.get("IdReceta")
     Nombre        = request.form.get("Nombre")
     Descripcion   = request.form.get("Descripcion")
@@ -265,20 +265,17 @@ def guardarReceta():
     Imagen_form = request.form.get("Imagen")
     file        = request.files.get("fileImagen")
 
-    # 2. Resolver la ruta de la imagen (igual que ya lo hacías)
-    Imagen = Imagen_form  # puede ser None
+    Imagen = Imagen_form 
 
     if file and file.filename:
         uploads_dir = os.path.join(app.root_path, "static", "uploads")
         os.makedirs(uploads_dir, exist_ok=True)
 
-        filename  = file.filename  # podrías sanitizar el nombre
+        filename  = file.filename 
         file_path = os.path.join(uploads_dir, filename)
         file.save(file_path)
 
         Imagen = f"/static/uploads/{filename}"
-
-    # 3. Armar el diccionario para el DAO
     datos_receta = {
         "IdReceta":      IdReceta,
         "Nombre":        Nombre,
@@ -297,113 +294,6 @@ def guardarReceta():
     # 5. Notificar por Pusher y responder
     pusherRecetas()
     return make_response(jsonify({}))
-
-
-
-
-# @app.route("/recetas", methods=["GET", "POST"])
-# @login
-# def recetas():
-#     # Si es GET, solo devolver la vista HTML (para Angular)
-#     if request.method == "GET":
-#         return render_template("Recetas.html")
-
-#     # Si es POST, guardar/actualizar la receta
-#     if not con.is_connected():
-#         con.reconnect()
-
-#     IdReceta      = request.form.get("IdReceta")
-#     Nombre        = request.form.get("Nombre")
-#     Descripcion   = request.form.get("Descripcion")
-#     Ingredientes  = request.form.get("Ingredientes")
-#     Utensilios    = request.form.get("Utensilios")
-#     Instrucciones = request.form.get("Instrucciones")
-#     Nutrientes    = request.form.get("Nutrientes")
-#     Categorias    = request.form.get("Categorias")
-
-#     # Texto opcional (por si algún día usas un input de texto Imagen)
-#     Imagen_form = request.form.get("Imagen")
-
-#     # Archivo subido desde el input type="file" name="fileImagen"
-#     file = request.files.get("fileImagen")
-
-#     # Valor por defecto de Imagen
-#     Imagen = Imagen_form  # puede ser None si no envías nada
-
-#     # Si viene archivo, lo guardamos y usamos esa ruta
-#     if file and file.filename:
-#         filename = secure_filename(file.filename)
-
-#         uploads_dir = os.path.join(app.root_path, "static", "uploads")
-#         os.makedirs(uploads_dir, exist_ok=True)
-
-#         file_path = os.path.join(uploads_dir, filename)
-#         file.save(file_path)
-
-#         # Ruta que se guardará en la BD (para usar directo en <img src="...">)
-#         Imagen = f"static/uploads/{filename}"
-    
-#     cursor = con.cursor()
-
-#     if IdReceta:
-#         sql = """
-#         UPDATE Recetas
-#         SET Nombre        = %s,
-#             Descripcion   = %s,
-#             Ingredientes  = %s,
-#             Utensilios    = %s,
-#             Instrucciones = %s,
-#             Nutrientes    = %s,
-#             Categorias    = %s,
-#             Imagen        = %s
-#         WHERE IdReceta = %s
-#         """
-#         val = (
-#             Nombre,
-#             Descripcion,
-#             Ingredientes,
-#             Utensilios,
-#             Instrucciones,
-#             Nutrientes,
-#             Categorias,
-#             Imagen,
-#             IdReceta
-#         )
-#     else:
-#         sql = """
-#         INSERT INTO Recetas (
-#             IdReceta,
-#             Nombre,
-#             Descripcion,
-#             Ingredientes,
-#             Utensilios,
-#             Instrucciones,
-#             Nutrientes,
-#             Categorias,
-#             Imagen
-#         ) VALUES (
-#             %s,%s,%s,%s,%s,%s,%s,%s,%s
-#         )
-#         """
-#         val = (
-#             IdReceta,
-#             Nombre,
-#             Descripcion,
-#             Ingredientes,
-#             Utensilios,
-#             Instrucciones,
-#             Nutrientes,
-#             Categorias,
-#             Imagen
-#         )
-    
-#     cursor.execute(sql, val)
-#     con.commit()
-#     con.close()
-
-#     pusherRecetas()
-    
-#     return make_response(jsonify({}))
 
 
 @app.route("/recetasTbody")
@@ -534,28 +424,19 @@ def eliminarReceta():
 
 
 
-# # EDITAR
-# @app.route("/recetas/<int:id>")
-# @login
-# def editarReceta(id):
-#     if not con.is_connected():
-#         con.reconnect()
+@app.route("/recetas/detalle/<int:id_receta>", methods=["GET"])
+@login
+def recetaDetalle(id_receta):
+    try:
+        con = get_connection()
+    except mysql.connector.Error as error:
+        return make_response(jsonify({
+            "estado": "error",
+            "respuesta": f"Error al conectar a la base de datos: {error}",
+        }), 500)
 
-#     cursor = con.cursor(dictionary=True)
-#     sql    = """
-#     SELECT IdReceta, Nombre, Descripcion, Ingredientes, Utensilios, Instrucciones, Nutrientes, Categorias, Imagen
-
-#     FROM Recetas
-
-#     WHERE IdRecetas = %s
-#     """
-#     val    = (id,)
-
-#     cursor.execute(sql, val)
-#     registros = cursor.fetchall()
-#     con.close()
-
-#     return make_response(jsonify(registros))
+    receta = editar_receta(con, id_receta)
+    return make_response(jsonify(receta))
 
 
 # BUSQUEDA
@@ -631,6 +512,7 @@ def obtener_recetas_favoritos(Id_Usuario):
         # con.close()
 
     return make_response(jsonify(registros))
+
 
 
 
