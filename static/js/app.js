@@ -1052,35 +1052,48 @@ app.controller("recetasCtrl", function ($scope, $http, SessionService, Categoria
     });
 });
 
-app.controller("favoritosCtrl", function($scope) {
-
-    function cargarFavoritos() {
+app.controller("favoritosCtrl", function($scope, $http, SessionService, MensajesService) {
+    function cargarFavoritosTabla() {
         $.get("/favoritosTbody", function(trsHTML) {
             $("#favoritosTbody").html(trsHTML);
         });
     }
 
-    cargarFavoritos();
+    if (SessionService.getTipo() == 1) {
+        cargarFavoritosTabla();
+    }
 
-    // Eliminar favorito desde la tabla
-    $(document).on("click", "#favoritosTbody .btn-eliminar-fav", function() {
-        const id = $(this).data("id");
+    $scope.favoritosUsuario = [];
 
-        if (!confirm("¿Deseas eliminar este favorito?")) return;
+    $scope.cargarFavoritosUsuario = function() {
 
-        $.post("/favoritos/eliminar", { IdFavorito: id }, function(resp) {
-            console.log("Favorito eliminado:", resp);
-            cargarFavoritos();
-        }).fail(function(xhr) {
-            console.error("Error al eliminar favorito:", xhr.responseText);
+        $http.get("/favoritos/usuario")
+            .then(function(resp) {
+                $scope.favoritosUsuario = resp.data || [];
+            })
+            .catch(function(err) {
+                console.error("Error al cargar favoritos:", err);
+            });
+    };
+    
+    $scope.eliminarFavorito = function(fav) {
+
+        if (!confirm("¿Eliminar este favorito?")) return;
+
+        $.post("/favoritos/eliminar", { IdFavorito: fav.IdFavorito }, function(resp) {
+            MensajesService.modal("Favorito eliminado.");
+            $scope.cargarFavoritosUsuario();
         });
-    });
+    };
+
 });
+
 
 
 document.addEventListener("DOMContentLoaded", function (event) {
     activeMenuOption(location.hash)
 })
+
 
 
 
