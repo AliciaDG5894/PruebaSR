@@ -1053,6 +1053,7 @@ app.controller("recetasCtrl", function ($scope, $http, SessionService, Categoria
 });
 
 app.controller("favoritosCtrl", function($scope, $http, SessionService, MensajesService) {
+    $scope.SessionService = SessionService;
     function cargarFavoritosTabla() {
         $.get("/favoritosTbody", function(trsHTML) {
             $("#favoritosTbody").html(trsHTML);
@@ -1093,8 +1094,3 @@ app.controller("favoritosCtrl", function($scope, $http, SessionService, Mensajes
 document.addEventListener("DOMContentLoaded", function (event) {
     activeMenuOption(location.hash)
 })
-
-
-
-
-
