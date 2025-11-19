@@ -17,7 +17,8 @@
     </div>
 
     <!-- Solo usuarios -->
-    <section ng-if="SessionService.getTipo() != 1">
+    <section ng-show="SessionService.getTipo() != 1">
+
 
         <!-- Buscador -->
         <div class="input-group mb-3">
@@ -65,3 +66,4 @@
     </section>
 
 </div>
+
