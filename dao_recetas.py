@@ -85,6 +85,25 @@ def buscar_recetas(con, busqueda: str):
 
     return registros
 
+# EDITAR    
+def editar_receta(con, id_receta: int):
+    cursor = con.cursor(dictionary=True)
+    sql = """
+    SELECT IdReceta, Nombre, Descripcion, Ingredientes,
+           Utensilios, Instrucciones, Nutrientes, Categorias, Imagen
+    FROM Recetas
+    WHERE IdReceta = %s
+    """
+    val = (id_receta,)
+
+    try:
+        cursor.execute(sql, val)
+        receta = cursor.fetchone()
+    finally:
+        cursor.close()
+
+    return receta
+
 # CATEGORIA
 def buscar_por_categoria(con, categoria: str):
 
@@ -106,4 +125,5 @@ def buscar_por_categoria(con, categoria: str):
         cursor.close()
 
     return registros
+
 
