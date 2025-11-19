@@ -1,0 +1,22 @@
+<div ng-controller="favoritosCtrl">
+    <h3>Mis favoritos</h3>
+
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th>#</th>
+                <th>Receta</th>
+                <th>Descripción</th>
+                <th>Categoría</th>
+                <th>Calificación</th>
+                <th>Comentario</th>
+                <th>Fecha</th>
+                <th>Imagen</th>
+                <th>Acciones</th>
+            </tr>
+        </thead>
+        <tbody id="favoritosTbody">
+            {% include "FavoritosTbody.html" %}
+        </tbody>
+    </table>
+</div>
