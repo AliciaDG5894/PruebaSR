@@ -532,6 +532,22 @@ def busqueda():
 def favoritos():
     return render_template("Favoritos.html")
 
+# @app.route("/favoritosTbody")
+# @login
+# def favoritosTbody():
+#     try:
+#         con = get_connection()
+#     except mysql.connector.Error as error:
+#         return make_response(jsonify({
+#             "estado": "error",
+#             "respuesta": f"Error al conectar a la base de datos: {error}",
+#         }), 500)
+
+#     id_usuario = session.get("login-id")
+#     registros  = obtener_favoritos(con, id_usuario)
+
+#     return render_template("FavoritosTbody.html", favoritos=registros)
+
 @app.route("/favoritosTbody")
 @login
 def favoritosTbody():
@@ -543,10 +559,19 @@ def favoritosTbody():
             "respuesta": f"Error al conectar a la base de datos: {error}",
         }), 500)
 
-    id_usuario = session.get("login-id")
-    registros  = obtener_favoritos(con, id_usuario)
+    tipo_usuario = session.get("login-tipo", 2)  # 1 = admin, 2 = normal
+
+    if tipo_usuario == 1:
+        # ADMIN: ver TODOS los favoritos (pasamos None)
+        id_usuario = None
+    else:
+        # Usuario normal: solo los suyos
+        id_usuario = session.get("login-id")
+
+    registros = obtener_favoritos(con, id_usuario)
 
     return render_template("FavoritosTbody.html", favoritos=registros)
+
 
 @app.route("/favoritos/guardar", methods=["POST"])
 @login
@@ -600,6 +625,7 @@ def favoritos_usuario():
     id_usuario = session.get("login-id")
     registros  = obtener_favoritos(con, id_usuario)
     return make_response(jsonify(registros))
+
 
 
 
