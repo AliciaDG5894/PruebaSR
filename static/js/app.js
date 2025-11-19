@@ -762,8 +762,22 @@ app.controller("recetasCtrl", function ($scope, $http, SessionService, Categoria
     // Esqueleto de acciones en las cards (luego las llenas bien)
     $scope.toggleFavorito = function (receta) {
         console.log("Click favorito en receta", receta.IdReceta);
-        // aquí después harás POST/DELETE a /favoritos
+        var comentario  = prompt("Comentario (opcional):", receta.Comentario || "");
+        var calificacion = prompt("Calificación (0 a 5, opcional):", receta.Calificacion || "");
+    
+        $.post("/favoritos/guardar", {
+            IdReceta: receta.IdReceta,
+            Comentario: comentario,
+            Calificacion: calificacion
+        }, function(resp) {
+            console.log("Favorito guardado/actualizado:", resp);
+            MensajesService.modal("Se guardó la receta en tus favoritos.");
+        }).fail(function(xhr) {
+            console.error("Error al guardar favorito:", xhr.responseText);
+            MensajesService.modal("Ocurrió un error al guardar el favorito.");
+        });
     };
+
 
     $scope.verReceta = function (receta) {
         console.log("Ver receta en muro:", receta.IdReceta);
@@ -1067,6 +1081,7 @@ app.controller("favoritosCtrl", function($scope) {
 document.addEventListener("DOMContentLoaded", function (event) {
     activeMenuOption(location.hash)
 })
+
 
 
 
