@@ -585,12 +585,12 @@ def eliminarFavorito():
     }))
 
 
+@app.route("/favoritos/usuario")
+@login
+def favoritos_usuario():
+    id_usuario = session.get("login-id")
 
+    con = get_connection()
+    favoritos = obtener_favoritos(con, id_usuario)
 
-
-
-
-
-
-
-
+    return jsonify(favoritos)
