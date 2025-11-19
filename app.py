@@ -459,7 +459,21 @@ def buscarReceta():
     return make_response(jsonify(registros))
 
 
+# EDITAR
+@app.route("/recetas/detalle/<int:id_receta>", methods=["GET"])
+@login
+def recetaDetalle(id_receta):
+    try:
+        con = get_connection()
+    except mysql.connector.Error as error:
+        return make_response(jsonify({
+            "error": f"Error al conectar a la base de datos: {error}",
+        }), 500)
 
+    receta = editar_receta(con, id_receta)
+    return make_response(jsonify(receta))
+
+# CATEGORIAS
 @app.route("/recetas/categorias", methods=["GET"])
 @login
 def buscarCategorias():
@@ -512,6 +526,7 @@ def obtener_recetas_favoritos(Id_Usuario):
         # con.close()
 
     return make_response(jsonify(registros))
+
 
 
 
