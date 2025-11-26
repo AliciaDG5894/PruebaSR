@@ -62,6 +62,10 @@ app.config(function ($routeProvider, $locationProvider) {
         templateUrl: "/recetas",
         controller: "recetasCtrl"
     })
+    .when("/agregarReceta", {
+        templateUrl: "/recetaNueva",
+        controller: "recetasCtrl" 
+    })
     .when("/busqueda", {
         templateUrl: "/busqueda",
         controller: "busquedaCtrl"
@@ -1333,6 +1337,7 @@ app.controller("favoritosCtrl", function($scope, $http, SessionService, Mensajes
 document.addEventListener("DOMContentLoaded", function (event) {
     activeMenuOption(location.hash)
 })
+
 
 
 
