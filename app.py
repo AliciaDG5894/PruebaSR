@@ -525,6 +525,10 @@ def busqueda():
     return render_template("Busqueda.html")
 
 
+@app.route("/recetaNueva")
+def receta_nueva_usuario():
+    return render_template("UsuarioAgregar.html")
+
 
 # FAVORITOS
 @app.route("/favoritos")
@@ -625,6 +629,7 @@ def favoritos_usuario():
     id_usuario = session.get("login-id")
     registros  = obtener_favoritos(con, id_usuario)
     return make_response(jsonify(registros))
+
 
 
 
