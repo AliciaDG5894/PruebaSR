@@ -1,0 +1,95 @@
+<form id="frmRecetas" method="post" ng-submit="crearReceta()"  enctype="multipart/form-data">
+    <input type="hidden" id="idReceta" name="idReceta">
+
+    <div class="mb-1">
+        <label>Nombre</label>
+        <input type="text" class="form-control" ng-model="nombre" id="txtNombre" name="txtNombre" required>
+    </div>
+    <div class="mb-1">
+        <label>Descripción</label>
+        <input type="text" class="form-control" ng-model="descripcion" id="txtDescripcion" name="txtDescripcion" required>
+    </div>
+    <div class="mb-1">
+        <label>Ingredientes</label>
+        <input type="text" class="form-control" ng-model="ingredientes" id="txtIngredientes" name="txtIngredientes" required>
+    </div>
+    <div class="mb-1">
+        <label>Utensilios</label>
+        <input type="text" class="form-control" ng-model="utensilios" id="txtUtensilios" name="txtUtensilios" required>
+    </div>
+    <div class="mb-1">
+        <label>Instrucciones</label>
+        <input type="text" class="form-control" ng-model="instrucciones" id="txtInstrucciones" name="txtInstrucciones" required>
+    </div>
+    <div class="mb-1">
+        <label>Nutrientes</label>
+        <input type="text" class="form-control" ng-model="nutrientes" id="txtNutrientes" name="txtNutrientes" required>
+    </div>
+    <div class="mb-1">
+        <label for="txtCategoria" class="form-label">Categoría</label>
+        <select class="form-control" ng-model="categorias" name="txtCategoria" id="txtCategoria" required>
+            <option value="" disabled selected hidden>Selecciona una categoría</option>
+            <option value="Desayunos">Desayunos</option>
+            <option value="Comidas">Comidas</option>
+            <option value="Cenas">Cenas</option>
+            <option value="Postres">Postres</option>
+            <option value="Rapida">Rápida</option>
+            <option value="Saludable">Saludable</option>
+        </select>
+    </div>
+    <div class="mb-1">
+        <label for="fileImagen" class="form-label">Imagen</label>
+        <input type="file" class="form-control" id="fileImagen" name="fileImagen" accept="image/*">
+    </div>
+
+    <div class="mb-1 text-end">
+        <button class="btn btn-primary">Guardar</button>
+    </div>
+</form>
+
+<!-- VISTA PREVIA (BUILDER) -->
+    {% raw %}
+    <div class="card mt-4" ng-if="nuevaReceta">
+        <div class="card-header bg-success text-white">
+        Vista previa de tu receta
+        </div>
+        <div class="card-body">
+        <h3 class="card-title mb-1">{{ nuevaReceta.Nombre }}</h3>
+        <p class="text-muted mb-3">{{ nuevaReceta.Descripcion }}</p>
+
+        <div class="text-center mb-3" ng-if="nuevaReceta.Imagen">
+            <img ng-src="{{ nuevaReceta.Imagen }}"
+                alt="{{ nuevaReceta.Nombre }}"
+                class="img-fluid rounded"
+                style="max-height: 200px; object-fit: cover;">
+        </div>
+    
+        <div class="row">
+            <div class="col-md-6">
+            <h6 class="fw-bold">Ingredientes</h6>
+            <p class="mb-2">{{ nuevaReceta.Ingredientes }}</p>
+            </div>
+            <div class="col-md-6">
+            <h6 class="fw-bold">Utensilios</h6>
+            <p class="mb-2">{{ nuevaReceta.Utensilios }}</p>
+            </div>
+        </div>
+    
+        <h6 class="fw-bold mt-3">Instrucciones</h6>
+        <p>{{ nuevaReceta.Instrucciones }}</p>
+    
+        <div class="row mt-3">
+            <div class="col-md-6">
+            <span class="badge bg-info text-dark me-2">
+                Nutrientes: {{ nuevaReceta.Nutrientes }}
+            </span>
+            </div>
+            <div class="col-md-6 text-md-end mt-2 mt-md-0">
+            <span class="badge bg-secondary">
+                Categoría: {{ nuevaReceta.Categorias }}
+            </span>
+            </div>
+        </div>
+        </div>
+    </div>
+    {% endraw %}
